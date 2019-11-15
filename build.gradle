@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'idea'
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+group 'zereb'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+
+
+}
+
+dependencies {
+    implementation "io.javalin:javalin:3.6.0"
+    implementation "com.h2database:h2:1.4.200"
+    implementation "org.slf4j:slf4j-simple:1.7.26"
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.github.zereb:utils:0.1'
+}
+
+jar{
+    archiveBaseName = "imageboard-server"
+    manifest {
+        attributes('Main-Class': 'com.oleg.imageboard.Server')
+    }
+    from sourceSets.main.output
+
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+}
+
