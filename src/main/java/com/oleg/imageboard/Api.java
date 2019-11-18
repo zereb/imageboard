@@ -7,6 +7,13 @@ import io.javalin.core.util.FileUtil;
 import io.javalin.http.Handler;
 import io.javalin.plugin.json.JavalinJson;
 
+import javax.imageio.ImageIO;
+import javax.security.auth.callback.TextInputCallback;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -52,7 +59,6 @@ public class Api {
         String json = ctx.queryParam("data", String.class).get();
         Long tid = System.currentTimeMillis();
         Post post = JavalinJson.fromJson(json, Post.class);
-        System.out.println(post.toString());
         if (post.images.isEmpty()){
             ctx.json(new Response("Error. 0 pictures.", ""));
             return;
@@ -77,7 +83,7 @@ public class Api {
     public static Handler createPost = ctx -> {
         String json = ctx.queryParam("data", String.class).get();
         Post post = JavalinJson.fromJson(json, Post.class);
-        System.out.println(post.text.length());
+        Long tid = Long.parseLong(ctx.pathParam("id"));
         if (post.text.length() < 10){
             ctx.json(new Response("Error! Message is too litle.", ""));
             return;
@@ -91,7 +97,7 @@ public class Api {
                 post.text
         ));
 
-        ctx.json(new Response("", "Created new post"));
+        ctx.json(new Response("", tid));
 
     };
     public static Handler getImages = ctx -> {
@@ -120,9 +126,19 @@ public class Api {
     public static Handler uplodaImg = ctx -> {
         ArrayList<Image> images = new ArrayList<>();
         ctx.uploadedFiles("files").forEach(file -> {
-            System.out.println(file.getFilename());
-            String filename = "[" + System.currentTimeMillis() + "]" + file.getFilename();
+            System.out.println("Uploaded file: " + file.getFilename());
+            String namePrefix = String.valueOf(System.currentTimeMillis());
+            String filename = namePrefix + "_" + file.getFilename();
             FileUtil.streamToFile(file.getContent(), "upload/" + filename);
+            try {
+                BufferedImage bi = ImageIO.read(Files.newInputStream(Path.of("upload/"+filename)));
+                BufferedImage thumb = Utils.createThumb(bi, 200, 200);
+                String extention = filename.substring(filename.lastIndexOf(".")+1);
+                ImageIO.write(thumb, extention, Files.newOutputStream(Paths.get("upload/thumb_"+filename)));
+                System.out.println("thumb created: thumb_" + filename);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             images.add(Image.insertInDB(new Image(System.nanoTime(), filename)));
         });
         ctx.json(new Response("", images));

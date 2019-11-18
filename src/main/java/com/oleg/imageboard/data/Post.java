@@ -51,7 +51,6 @@ public class Post {
             prep.setArray(5, connection.createArrayOf("text", record.images.toArray()));
             prep.setString(6, record.text);
             prep.execute();
-            System.out.println("Added record: " + record.toString());
         } catch (SQLException e) {
             e.printStackTrace();
         }
