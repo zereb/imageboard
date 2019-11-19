@@ -56,7 +56,8 @@ public class Api {
 
 
     public static Handler createThread = ctx -> {
-        String json = ctx.queryParam("data", String.class).get();
+        String json = ctx.formParam("data", String.class).get().replaceAll("&&", "");
+        System.out.println(json);
         Long tid = System.currentTimeMillis();
         Post post = JavalinJson.fromJson(json, Post.class);
         if (post.images.isEmpty()){
@@ -81,7 +82,7 @@ public class Api {
     };
 
     public static Handler createPost = ctx -> {
-        String json = ctx.queryParam("data", String.class).get();
+        String json = ctx.formParam("data", String.class).get();
         Post post = JavalinJson.fromJson(json, Post.class);
         Long tid = Long.parseLong(ctx.pathParam("id"));
         if (post.text.length() < 10){

@@ -36,11 +36,11 @@ public class Server {
             config.defaultContentType = "application/json; charset=utf-8";
             config.enforceSsl =false;
             config.enableCorsForAllOrigins();
+            config.requestCacheSize = 256000L;
             config.addStaticFiles("./upload/", Location.EXTERNAL);
-            config.addStaticFiles("/home/oleg/Documents/Java/imageboard-frontend/imageboard-frontend/", Location.EXTERNAL);
             config.requestLogger(((ctx, executionTimeMs) -> {
-                String output = String.format("%s ip: %s %s took %f ms %s",
-                        ctx.method(), ctx.ip(), ctx.path(), executionTimeMs, ctx.queryParamMap().toString());
+                String output = String.format("%s ip: %s %s took %f ms",
+                        ctx.method(), ctx.ip(), ctx.path(), executionTimeMs);
                 LOG.info(output);
             }));
         }).start(Integer.parseInt(PORT));
