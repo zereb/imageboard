@@ -13,6 +13,8 @@ import io.javalin.plugin.json.JavalinJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Server {
@@ -32,12 +34,15 @@ public class Server {
         JavalinJson.setFromJsonMapper(gson::fromJson);
         JavalinJson.setToJsonMapper(gson::toJson);
 
+
         Javalin app = Javalin.create(config -> {
             config.defaultContentType = "application/json; charset=utf-8";
             config.enforceSsl =false;
             config.enableCorsForAllOrigins();
             config.requestCacheSize = 256000L;
+            new File("./upload").mkdirs();
             config.addStaticFiles("./upload/", Location.EXTERNAL);
+            config.addStaticFiles("dist/",Location.CLASSPATH);
             config.requestLogger(((ctx, executionTimeMs) -> {
                 String output = String.format("%s ip: %s %s took %f ms",
                         ctx.method(), ctx.ip(), ctx.path(), executionTimeMs);
