@@ -4,7 +4,8 @@ create table if not exists posts(
         epoch bigint,
         email varchar(255),
         images array,
-        text text
+        text text,
+        responses array
 );
 
 create table if not exists images(

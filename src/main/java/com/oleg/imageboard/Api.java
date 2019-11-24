@@ -8,7 +8,6 @@ import io.javalin.http.Handler;
 import io.javalin.plugin.json.JavalinJson;
 
 import javax.imageio.ImageIO;
-import javax.security.auth.callback.TextInputCallback;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,9 +18,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Api {
     public static Handler getPosts = ctx -> {
@@ -78,8 +77,8 @@ public class Api {
                 System.currentTimeMillis(),
                 post.email,
                 post.images,
-                post.text
-        ));
+                post.text,
+                new ArrayList<>()));
 
         ctx.json(new Response("", tid));
 
@@ -89,18 +88,33 @@ public class Api {
         String json = ctx.formParam("data", String.class).get();
         Post post = JavalinJson.fromJson(json, Post.class);
         Long tid = Long.parseLong(ctx.pathParam("id"));
-        if (post.text.length() < 10){
+        if (post.text.length() < 4){
             ctx.json(new Response("Error! Message is too litle.", ""));
             return;
         }
+        int generatedId = generateId();
+
+        Pattern pattern = Pattern.compile(">>[0-9]+");
+        Matcher matcher = pattern.matcher(post.text);
+        while (matcher.find()) {
+            int id = Integer.parseInt(matcher.group().replaceAll(">>", ""));
+            String sql = "SELECT * FROM posts WHERE id = " + id;
+            ArrayList<Post> posts = Post.getPosts(Server.db, sql);
+            posts.forEach(post1 -> {
+                post1.responses.add(generatedId);
+                Post.updateResps(id, post1.responses);
+            });
+        }
+
+
         Post.insertInDB(new Post(
-                generateId(),
+                generatedId,
                 Long.parseLong(ctx.pathParam("id")),
                 System.currentTimeMillis(),
                 post.email,
                 post.images,
-                post.text
-        ));
+                post.text,
+                new ArrayList<>()));
 
         ctx.json(new Response("", tid));
 
