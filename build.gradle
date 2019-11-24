@@ -30,6 +30,10 @@ dependencies {
     implementation 'com.github.zereb:utils:0.1'
 }
 
+task stage() {
+    dependsOn clean, jar
+}
+
 jar{
     archiveBaseName = "imageboard-server"
     manifest {
