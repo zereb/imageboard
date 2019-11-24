@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class Api {
     public static Handler getPosts = ctx -> {
@@ -30,15 +31,18 @@ public class Api {
     };
 
 
+    public static Handler getPost = ctx -> {
+        String sql = "SELECT * FROM posts WHERE id = " + ctx.pathParam("id");
+        ArrayList<Post> posts = Post.getPosts(Server.db, sql);
+        ctx.json(new Response("", posts));
+    };
+
 
     public static  Handler getThreads = ctx -> {
-        String sql = "";
-        if (!ctx.pathParamMap().containsKey("id"))
-            sql = "SELECT tid FROM posts";
-        else
-            sql = "select id from posts where tid = " +ctx.pathParam("id");
+        String sql = "SELECT tid, epoch FROM posts order by epoch desc";
 
-        HashSet<Long> threads = new HashSet<>();
+
+        LinkedHashSet<Long> threads = new LinkedHashSet<>();
 
         try(Connection connection = Server.db.getConnection();
             PreparedStatement statement = connection.prepareStatement(sql);

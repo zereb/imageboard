@@ -16,7 +16,6 @@ public class Post {
     public final String text;
     private String humanEpoch;
 
-
     public Post(int id, long tId, long epoch, String email, ArrayList<String> images, String text) {
         this.id = id;
         this.tId = tId;

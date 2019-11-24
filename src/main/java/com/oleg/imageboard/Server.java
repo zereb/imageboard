@@ -56,6 +56,9 @@ public class Server {
                     post(Api.createPost);
                 });
             });
+            path("posts", () -> {path(":id", () -> {
+                get(Api.getPost);
+            });});
             path("images", () ->{
                 get(Api.getImages);
                 post(Api.uplodaImg);
