@@ -42,7 +42,7 @@ public class Server {
             config.requestCacheSize = 256000L;
             config.enableCorsForAllOrigins();
             config.addStaticFiles("./upload/", Location.EXTERNAL);
-            config.addStaticFiles("dist/");
+            config.addStaticFiles("/dist/");
             config.addSinglePageRoot("/", "dist/index.html");
             config.requestLogger(((ctx, executionTimeMs) -> {
                 String output = String.format("%s ip: %s %s took %f ms",
