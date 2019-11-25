@@ -34,15 +34,16 @@ public class Server {
         JavalinJson.setFromJsonMapper(gson::fromJson);
         JavalinJson.setToJsonMapper(gson::toJson);
 
+        new File("./upload").mkdirs();
 
         Javalin app = Javalin.create(config -> {
             config.defaultContentType = "application/json; charset=utf-8";
             config.enforceSsl =false;
-            config.enableCorsForAllOrigins();
             config.requestCacheSize = 256000L;
-            new File("./upload").mkdirs();
+            config.enableCorsForAllOrigins();
             config.addStaticFiles("./upload/", Location.EXTERNAL);
-            config.addStaticFiles("dist/",Location.CLASSPATH);
+            config.addStaticFiles("dist/");
+            config.addSinglePageRoot("/", "dist/index.html");
             config.requestLogger(((ctx, executionTimeMs) -> {
                 String output = String.format("%s ip: %s %s took %f ms",
                         ctx.method(), ctx.ip(), ctx.path(), executionTimeMs);
